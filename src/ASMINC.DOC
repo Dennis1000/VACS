@@ -1,0 +1,223 @@
+{
+
+    This is an example of the assembler-specific file for a (non-existant uP)
+    assembler.
+
+    This demo assembler implements two opcodes: NOP and LOAD
+
+    - NOP                ; opcode byte  = 01010101
+
+    - LOAD has the syntax of either:
+
+        LOAD r,r         ; opcode byte  = 11rr00rr
+        LOAD r, address  ; opcode bytes = 11rr0011 llllllll hhhhhhhh
+        LOAD r, #data    ; opcode bytes = 11rr0100 dddddddd
+
+        where r is either A, B or C and rr its respective value:
+           A = 00
+           B = 01
+           C = 10
+
+    Copy this file to ASMINC.PAS and use the MAKE utility to create the
+    demo assembler. The resulting ASM.EXE can be tested on the the file
+    ASMEXMPL.ASM by typing: ASM ASMEXMPL
+   
+ 
+    Author : Wil Taphoorn
+             Fidonet 2:500/40.1547
+}
+
+{$R-,B-,S-,N-}
+
+unit asminc;
+
+interface
+
+uses     asmvar,           { the names of some core variables }
+         asminp,           { the input routines               }
+         asmini,           { some general purpose routines    }
+         asmout,           { the .HEX and .LST drivers        }
+         asmexp;           { the expression evaluator         }
+
+procedure process (Commd:integer);  { this is the only must   }
+
+implementation
+
+procedure Process (Commd: integer);
+
+const
+
+{ first of all, we need a new Operand, the '#' sign   }
+{ we have to define it and give it an internal number }
+
+  Immediate = 0;   { negative numbers are reserved for VACS core }
+
+{ now define our Register types and assign them an internal number }
+
+  A_Reg     = 0;
+  B_Reg     = 1;
+  C_Reg     = 2;
+
+{ and in the same way, define the Opcode types }
+
+  Load      = 0;
+  Nop       = 1;
+
+
+{ 
+ The actual ASCII patterns of all we have defined above will be stored at the
+ bottom of this file.
+}
+
+
+
+{
+    This is a local routine that handles the second operand of the LOAD opcode.
+
+    It scans for ",A" ",B" ",C", ",#value" or an address. The routine is entered
+    with value 11rr 0000 (rr was the first operand). If the comma and the
+    second operand are valid, then it writes the code byte(s) to both .HEX and
+    .LST files, else it reports error.
+
+    It was not neccecary to create a seperate routine for just one opcode,
+    however it is a good example since actual assemblers often have opcodes
+    that require common handling of the addressing mode part.
+}
+
+  procedure AddrMode (Code: integer);
+  begin
+
+     GetToken;  { remove the first operand and read the comma }
+
+     if (CurTyp = Operand) and (CurVal = Comma) then
+       begin
+
+         GetToken;  { remove the comma and read the second operand }
+
+         {
+           remember that after GetToken, the global variables CurTyp,
+           CurVal etc. holds information of the token that was just got
+         }
+
+         if (CurTyp = Register) then
+           if (CurVal in [A_Reg..C_Reg]) then
+             begin                                { "A".."C" found: opcode = o.k. }
+               WriteByte (Code + CurVal - A_reg); { update LST and HEX file       }
+               GetToken;                          { remove 2nd operand            }
+             end
+           else
+             StoError (0, 'Incorrect Register')
+            
+         else         { no register found, could be '#' }
+
+           if (CurTyp = Operand) and (CurVal = Immediate) then
+             begin
+               GetToken;                  { remove the '#'        }
+               MustBeExpr (0, 255);       { value must be 00-FF   }
+               WriteByte (Code + 4);      { write 1st opcode byte }
+               WriteByte (CurExpVal);     { write 2nd opcode byte }
+             end
+
+           else       { no 'A'..'C', no '#' so must be address }
+
+             begin
+               MustBeExpr (0,$FFFF);       { must be 0000H-FFFFH     }
+               WriteByte (Code + 3);       { write 1st opcode byte   }
+               WriteByte (lo (CurExpVal)); { write low address byte  }
+               WriteByte (hi (CurExpVal)); { write high address byte }
+             end;
+             
+       end
+
+     else { no comma found }
+
+       StoError (0, 'Comma Expected');
+
+  end;
+
+
+
+begin { Process }
+
+    {
+
+    This is the actual uP-specific decoder routine which is called when the
+    VACS core scans the input line and 'hits' a uP specific opcode.  This
+    routine is then called, passing the value of that opcode in 'Commd'.
+    The opcode value is defined at the top of this file and the type and its
+    pattern are defined in the '-1' part of this routine (see below).  The
+    first operand folowing the opcode is already 'GetToken'-ed, i.e.
+    CurVal, CurTyp etc. holds information of the first oprerand.
+
+    }
+
+   case Commd of
+
+   Load : { token was "LOAD", now check for valid register.
+
+            If register is present then opcode is 11rr 00xx.  Call local
+            routine with parameter 11rr 0000 (the base-opcode) to finish-up
+            things, else report error.
+          }
+
+          if (CurTyp = Register) and (CurVal in [A_Reg..C_Reg]) then
+             AddrMode ($C0 + ((CurVal - A_Reg) shl 4))
+
+            {
+             If operands form a logical group, i.e. have successive values that
+             are needed to form the opcodes (just like A_reg..C_Reg in this 
+             demo), then it is good practice to define those operands in 
+             succesive order into the definition list. To retrieve the actual
+             logic value you can subtract the first member of such a group from
+             CurVal, as shown in "(CurVal - A_Reg)" above.
+            }
+
+          else
+             StoError (0, 'Register Expected');
+
+   Nop  : { token was "NOP", just put 55H, no further processing needed }
+
+          WriteByte ($55);
+
+          
+   -1   : { special case, called only once at initialization time }
+ 
+          begin
+
+             {
+              Append some records to the static pattern table, so that opcodes
+              and operands will be recognized.  Records have the format of:
+
+                  Name  : string[8];
+                  Typ   : byte;
+                  Val   : integer;
+
+              If a pattern (Name) is recognized by GetToken, then CurTyp will
+              be set to 'Typ' and CurVal to 'Val' (the value that is defined
+              at the top of this file). See ASMVAR.PAS for definition of used
+              Types.
+
+              The core procedure StoPatt() inserts each record in alphabetic
+              order into the static table but ordering them here make things
+              more readable.
+             }
+
+             StoPatt ('#'    ,Operand  ,Immediate);	
+             StoPatt ('A'    ,Register ,A_Reg);
+             StoPatt ('B'    ,Register ,B_Reg);
+             StoPatt ('C'    ,Register ,C_Reg);
+             StoPatt ('LOAD' ,Opcode   ,Load);
+             StoPatt ('NOP'  ,Opcode   ,Nop);
+
+          end; { -1 tag }
+
+   end; { case Commd }
+
+end; { Process }
+
+{ set the UNIT-init variables }
+
+begin
+  ProcFamily := 'X-1 Assembler';   { uP name }
+  InclAuthor := 'Mr. X';           { author of this definitionfile }
+end.

@@ -1,0 +1,29 @@
+DBX v1.02 (c) 2003 by Dennis D. Spreen
+Converts DB statements to DBX statements
+
+Syntax:
+         dbx.exe <input.asm> [output.asm]
+
+
+This utility converts DB statements to the
+graphical dbx statements. 
+
+Example:
+
+      db 7Eh,81h,A5h,81h,A5h,99h,81h,7Eh
+
+will be converted to
+
+      dbx ".######." ; 7Eh 
+      dbx "#......#" ; 81h 
+      dbx "#.#..#.#" ; A5h 
+      dbx "#......#" ; 81h 
+      dbx "#.#..#.#" ; A5h 
+      dbx "#..##..#" ; 99h 
+      dbx "#......#" ; 81h 
+      dbx ".######." ; 7Eh 
+
+
+
+Regards,
+ Dennis D. Spreen (dennis@spreendigital.de)

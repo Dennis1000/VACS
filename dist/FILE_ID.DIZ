@@ -1,4 +1,4 @@
-# VACS 1.24h/w32 - 2650 family assembler
+VACS 1.24h/w32 - 2650 family assembler
 This is the Win32 port of the VACS 1.24 
 assembler by W.H. Taphoorn and A.C. Verschueren 
 with additional binary output support for 
