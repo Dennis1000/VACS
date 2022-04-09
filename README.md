@@ -114,10 +114,13 @@ Or just write me an email
 
 # Examples
 `asm32 mothership.asm`
+
 Generates the mothership.bin binary.
 
 `asm32 mothership.asm -k 4096`
+
 Generates a 4k mothership.bin binary padded with 0h (default).
 
 `asm32 mothership.asm -k 2048 -c 255`
+
 Generates a 2k mothership.bin binary padded with $FF (=255 decimal).
