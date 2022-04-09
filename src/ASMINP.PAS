@@ -3,7 +3,7 @@ unit asminp;
 
 interface
 
-uses crt,
+uses
      types,          { the functions IsLabel, IsHex etc }
      asmvar,
      asmout,
@@ -180,6 +180,13 @@ begin { GetToken }
     SkipSpace;
   ErrorPntr := CurLinePntr;
   FirstChar := CurLinePntr;
+
+  //1.24i Initialize unitialized variables.
+  SeekPtr := 0;
+  Ratio := 0;
+  BackUpChar := 0;
+  BackUpCL := False;
+
   if EndOfLine then
     CurTyp := EndLine
   else
@@ -294,7 +301,7 @@ begin { GetToken }
           BackUpPtr := 0;
           FirstCL := IsLabel (LockBuffer);
           BlockOfCL := FirstCL;
-          BlockIt := FALSE;
+          //BlockIt := FALSE;  // Value assigned never used
 
           while CurTyp = Ident do
             begin                { start/continue searching }
@@ -432,7 +439,7 @@ begin { GetToken }
                   GetInp;
                 end;
 
-              SeekStr[0] := chr (LastChar);
+              SeekStr[0] := AnsiChar (LastChar);
 
               { initialise for identifier search: }
 
@@ -444,7 +451,7 @@ begin { GetToken }
               Seek     := IdentArray[SeekPtr];
               PrevHook := NIL; 
               CurDef   := TRUE;
-              FirstCL  := TRUE;
+              //FirstCL  := TRUE; // Value assigned never used
 
               { search linked list until last record found,
                                  or Name >= name to search: }
@@ -586,7 +593,7 @@ begin { GetQuoted }
           StoError (0,'Zero Length String');
         end
       else
-        CurQuoted[0] := chr (i);
+        CurQuoted[0] := AnsiChar (i);
   GetToken;
 end; { GetQuoted }
 
@@ -623,7 +630,7 @@ end; { SeekComma }
 
 procedure NextLine;
 var i       : integer;
-    CurChar : char;
+    CurChar : AnsiChar;
     RepLine : string[255];
     RepPntr : integer;
     SavPntr : integer;
@@ -691,7 +698,7 @@ begin { NextLine }
               GetByte;
             end;
 
-          CurLine[0] := chr (i - 1);
+          CurLine[0] := AnsiChar (i - 1);
           while not EndOfFile and (CurChar <> #13)
             do GetByte;        { line too long, read until CR found }
         end
@@ -725,7 +732,7 @@ begin { NextLine }
               GetByte;
             end;
 
-          CurLine[0] := chr (i - 1);
+          CurLine[0] := AnsiChar (i - 1);
           if (i > 255) and (CurChar <> #13) then
             begin            { line is too long to be handled }
               StoError (0,'Line Too Long');
@@ -851,7 +858,7 @@ begin { NextLine }
             end
           else                     { else normal line }
             begin
-              RepLine[0] := chr (RepPntr - 1);
+              RepLine[0] := AnsiChar (RepPntr - 1);
               CurLine := RepLine;
               CurLinePntr := 0;
               EndOfLine := FALSE;

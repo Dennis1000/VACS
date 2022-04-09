@@ -21,7 +21,7 @@ implementation
 
 procedure XrfStart;
 
-var i,j,k : integer;
+var i     : integer;
     p     : IdentPtr;
 
 

@@ -14,6 +14,7 @@ procedure WriteEOF (FileLevel: integer);
 procedure WriteByte (aByte: integer);
 procedure ListIdents;
 procedure CountUnused;
+procedure PadOrg(HOutPntr, OldHOutPntr: longint);
 
 implementation
 
@@ -48,13 +49,13 @@ implementation
 var
   BufferCount: Integer;
 
-procedure WriteBinary(outString: String);
+procedure WriteBinary(outString: ShortString);
 var
   buffer: array [0..4096] of byte;
   bufferc: integer;
   c: integer;
   b: Byte;
-  s: String;
+  s: ShortString;
 
 
 begin
@@ -69,7 +70,7 @@ begin
  begin
    s := '$'+copy(OutString,1,2);
    delete(OutString,1,2);
-   val (s,b,c);
+   val (String(s),b,c);
    buffer[bufferc] := b;
    inc(bufferc);
  end;
@@ -170,8 +171,7 @@ end; { PrintHead }
 
 procedure PrintLine;
 var i, j, k    : integer;
-    ErrPrefix : string;
-    NumString : string;
+    NumString : ShortString;
 begin
   if (not (DontPrint or (ListStatus <> Full)) or (NrOfErrors > 0))
      and (Pass = Second) then
@@ -190,7 +190,8 @@ begin
       if EnaLineNum then
         begin
           Str (LineNumber, NumString);
-          NumString := copy ('000', length (NumString), 4) + NumString + ' ';
+
+          NumString := ShortString(copy ('000', length (NumString), 4) + String(NumString) + ' ');
           write (ListFile, LMargStr, NumString, StartLine);
           k := PageWidth - 23;
         end
@@ -203,7 +204,7 @@ begin
         while length (CurLine) > k do
           begin              { print one part of a folded line }
             i := length (CurLine);
-            CurLine[0] := chr (k);
+            CurLine[0] := AnsiChar (k);
             writeln (ListFile, CurLine);
             PrintHead;
             if EnaLineNum then write (ListFile,'     ');
@@ -211,11 +212,11 @@ begin
             write (ListFile, LMargStr,'              --> ');
             for j := 1 to (i - k) do
               CurLine[j] := CurLine[j + k];
-            CurLine[0] := chr (i - k);
+            CurLine[0] := AnsiChar (i - k);
           end { then while }
       else
         if length (CurLine) > k then
-          CurLine[0] := chr (k);
+          CurLine[0] := AnsiChar (k);
 
               { print the remainder of the line if folded,
                 the complete line if it fits, or the first
@@ -298,7 +299,7 @@ begin
           HOutCheck := SecondSum;
         end;
       HOStringPntr := SumLocation;
-      HOutString[0] := chr (SumLocation + 1);
+      HOutString[0] := AnsiChar (SumLocation + 1);
                              { set number of bytes in HOutString }
       case HexFormat of
 
@@ -608,6 +609,37 @@ begin
           end;
       end;
 
+end;
+
+
+procedure PadOrg(HOutPntr, OldHOutPntr: longint);
+var
+  buffer: array [0..1023] of byte;
+  Blocks: Integer;
+  PadBytes: integer;
+  I: integer;
+begin
+  if Pass <> Second then
+    Exit;
+
+  if OldHOutPntr >= HOutPntr then
+    Exit;
+
+  ForceOut;          { send old HOString to object file }
+
+  fillchar(buffer,1024,BinaryPadByte);
+
+  PadBytes := HOutPntr - OldHOutPntr;
+  if PadBytes <= 0 then
+    Exit;
+
+  Blocks := PadBytes div 1024;
+  PadBytes := PadBytes mod 1024;
+
+  for I := 1 to Blocks do
+    blockwrite(OutFileBinary, buffer[0], 1024);
+
+  blockwrite(OutFileBinary, buffer[0], PadBytes);
 end;
 
 begin

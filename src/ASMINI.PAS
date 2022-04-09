@@ -189,7 +189,7 @@ end;
 procedure StoError (ErrorTyp: integer; AString: ErrorString);
 
 var ErrPtr : integer;        { ErrorPntr for 'folded' lines (lines too long }
-    DebStr : string;         { to be printed on one line in the list file)  }
+    DebStr : ShortString;         { to be printed on one line in the list file)  }
 
   procedure Fillspace (i1: integer);
   var i2: integer;
@@ -239,13 +239,13 @@ begin { StoError }
               Fillspace (ErrPtr - length (AString) - 1);
               Seterror (ErrPtr - length (AString) - 1);
               Errors[NrOfErrors].txt[ErrPtr - 1] := ' ';
-              Errors[NrOfErrors].txt[0] := chr (ErrPtr);
+              Errors[NrOfErrors].txt[0] := AnsiChar (ErrPtr);
             end
           else
             begin            { place message right of caret }
               Fillspace (ErrPtr + 1);
               Seterror (ErrPtr + 2);
-              Errors[NrOfErrors].txt[0] := chr (ErrPtr + length (AString) + 1);
+              Errors[NrOfErrors].txt[0] := AnsiChar (ErrPtr + length (AString) + 1);
             end;
           Errors[NrOfErrors].txt[ErrPtr] := '^';
           Errors[NrOfErrors].Code := ErrorTyp;
@@ -391,8 +391,6 @@ end;
 procedure ClearNonIdents;
 var i : integer;
     p : IdentPtr;
-    h : string[4];           { for conversion of TotLines }
-
 
 begin { ClearNonIdents }
   NrOfIdents := 0;
@@ -602,7 +600,6 @@ procedure HandleUser;
 var ParamCntr,
     CharCntr  : integer;
     ParamErr  : boolean;
-    ParamChar : char;
 
   { the following procedure extracts a file specification from
     the parameter string given by the user. The spec will be
@@ -612,8 +609,7 @@ var ParamCntr,
 
   procedure ExtractFile (var AFile: pathstr);
 
-  var i : integer;
-      d : dirstr;
+  var d : dirstr;
       n : namestr;
       e : extstr;
 
@@ -673,7 +669,7 @@ begin { HandleUser }
             begin
               if ParamCntr <= paramcount then
                 begin
-                  CurLine := paramstr (ParamCntr);
+                  CurLine := ShortString(paramstr (ParamCntr));
                   inc (ParamCntr);
                   CharCntr := 2;
                   if (length (CurLine) >= 2) and
@@ -700,7 +696,7 @@ begin { HandleUser }
                              end;
                         'B': if CharCntr = length (CurLine) then
                                begin
-                                 CurLine := paramstr (ParamCntr);
+                                 CurLine := ShortString(paramstr (ParamCntr));
                                  inc (ParamCntr);
                                  if length (CurLine) < 3 then
                                    begin
@@ -722,7 +718,7 @@ begin { HandleUser }
 
                         'U': if UpFunc and (CharCntr = length (CurLine)) then
                                begin
-                                 UpFuncLine := paramstr (ParamCntr);
+                                 UpFuncLine := ShortString(paramstr (ParamCntr));
                                  inc (ParamCntr);
                                end
                              else
@@ -761,7 +757,7 @@ begin { HandleUser }
 
                         '1'..'9':        { V1.10: set a 'User Option' }
                               begin
-                                StoPatt ('$USR'+CurLine[CharCntr], Constant,- 1);
+                                StoPatt (ShortString('$USR')+CurLine[CharCntr], Constant,- 1);
                                 { V1.23: set userflag }
                                 UserFlag[ord (CurLine[CharCntr]) - $30] := TRUE;
                               end;
@@ -769,8 +765,8 @@ begin { HandleUser }
                         'K':
                         if CharCntr = length (CurLine) then
                                begin
-                                 CurLine := paramstr (ParamCntr);
-                                 val (CurLine,BinaryPad,TempI);
+                                 CurLine := ShortString(paramstr (ParamCntr));
+                                 val (String(CurLine),BinaryPad,TempI);
                                  if (TempI=0) and (BinaryPad>0) then
                                  begin
                                    inc (ParamCntr);
@@ -782,9 +778,9 @@ begin { HandleUser }
                         'C':
                         if CharCntr = length (CurLine) then
                                begin
-                                 CurLine := paramstr (ParamCntr);
-                                 val (CurLine,BinaryPadByte,TempI);
-                                 if (TempI=0) and (BinaryPadByte>=0) and (BinaryPadByte<=255) then
+                                 CurLine := ShortString(paramstr (ParamCntr));
+                                 val (String(CurLine),BinaryPadByte,TempI);
+                                 if TempI = 0 then
                                  begin
                                    inc (ParamCntr);
                                    CharCntr := length(CurLine);
@@ -894,7 +890,7 @@ begin { HandleUser }
           'V': EnaUnused := TRUE;
           'P': PreProcess := false;
           '1'..'9': begin
-                      StoPatt ('$USR' + CurLine[CharCntr], Constant, - 1);
+                      StoPatt (ShortString('$USR') + CurLine[CharCntr], Constant, - 1);
 { V1.23a }            UserFlag[ord (CurLine[CharCntr]) - $30] := TRUE;
                     end;
           ' ','/','-':      ; { skip spaces and option delimiters }

@@ -256,28 +256,27 @@ program asm32;
 
 
 uses
-  Crt,
-  Dos,
-  asmvar,
-  asmini,
-  asminp,
-  asmout,
-  asmexp,
-  asmhan,
-  asminc,
-  asmxrf,
+  Dos in 'dos.pas',
+  asmvar in 'ASMVAR.PAS',
+  asmini in 'ASMINI.pas',
+  asminp in 'ASMINP.pas',
+  asmout in 'ASMOUT.pas',
+  asmexp in 'ASMEXP.pas',
+  asmhan in 'ASMHAN.pas',
+  asminc in 'ASMINC.pas',
+  asmxrf in 'ASMXRF.pas',
   types in 'TYPES.PAS';
 
 var
   lTabs: Integer;
   lDollarPntr: Integer;
 begin { MAIN ROUTINE }
-  Version := ' V1.24h/w32';
+  Version := ' V1.24i/w32';
   writeln;
   writeln ('VACS   Verschueren Assembler Construction Set ',ProcFamily + Version);
   writeln ('       The public domain modular assembler package, written by');
   writeln ('       A.C. Verschueren 1987 and W.H. Taphoorn, 1989..1993');
-  writeln ('       Updated & ported to Win32 by D.D. Spreen, 2003/04-05');
+  writeln ('       Updated & ported to Win32 by D.D. Spreen, 2003..2022');
   writeln;
 
 //  assign (output,'');         { V1.20 suppress direct video I/O }
@@ -287,7 +286,7 @@ begin { MAIN ROUTINE }
 
   if paramcount > 0 then
     begin
-      TabLine := paramstr (1);  { misuse TabLine var }
+      TabLine := ShortString(paramstr (1));  { misuse TabLine var }
 
       if ((TabLine[1] in ['-','/']) and (TabLine[2] in ['h','H','?']))
            or (TabLine[1] = '?') then
@@ -440,7 +439,7 @@ begin { MAIN ROUTINE }
       Typ    := Segment;
       SegNum := 0;
       Rel    := ByteRel;
-      Name   := '%' + NameOf (InFileSpec);
+      Name   := '%' + ShortString(NameOf (InFileSpec));
     end;
   NewSegNum := 1;
 
@@ -531,13 +530,16 @@ begin { MAIN ROUTINE }
         writeln;
       write (TotLines:12,' Source Lines ', TotLines - TotSkipLines:7,
                          ' Assembled Lines ');
-      writeln (memavail:12,' Bytes Available');
+
+      //1.24i memavail is deprecated, and not really necessary anymore.
+      //writeln (memavail:12,' Bytes Available');
       writeln;
     end;
   PrintHead;
   write (ListFile, TotLines:12, ' Source Lines ', TotLines - TotSkipLines : 7,
                                 ' Assembled Lines ');
-  writeln (ListFile, memavail:12,' Bytes Available');
+  //1.24i memavail is deprecated, and not really necessary anymore.
+  //writeln (ListFile, memavail:12,' Bytes Available');
   PrintHead;
   writeln (ListFile);
   if (TotalErrors = 0) and (Unused = 0) then

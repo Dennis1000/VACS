@@ -130,7 +130,7 @@ const  MaxPat      = 500;    {max nr of patterns lexical analiser}
                       'July','August','September','October','November',
                       'December');
 
-       HexString   : array[0..15] of char = '0123456789ABCDEF';
+       HexString   : array[0..15] of AnsiChar = '0123456789ABCDEF';
        DotString   : string[32] = ' . . . . . . . . . . . . . . . .';
 
 type   AsciiStr    = string[8];
@@ -187,7 +187,7 @@ type   AsciiStr    = string[8];
 
        ANumberStr  = string[5];
        ErrorString = string[30];
-       Sector      = array[0..511] of char;
+       Sector      = array[0..511] of AnsiChar;
 
 const  IdentRecSize    = sizeof (IdentRec) - 32;
 
@@ -230,7 +230,7 @@ var    InFile        : file;   { V1.11: needed declaration for blockread }
        SeekStr       : string[32];
        Version       : string[11];
        UserIDName    : string[9];
-       QuoteChar     : char;
+       QuoteChar     : AnsiChar;
 
        Patterns      : array[1..MaxPat] of Pattern;
        NrOfPatt      : integer;
@@ -332,7 +332,7 @@ var    InFile        : file;   { V1.11: needed declaration for blockread }
        BreakAdd      : pointer;     { old INT 23H pointer (^C handling) }
 
        NormBuffer,
-       LockBuffer    : char;
+       LockBuffer    : AnsiChar;
 
        StringBase,
        StringPntr,

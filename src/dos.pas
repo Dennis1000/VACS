@@ -19,9 +19,6 @@ function fexpand (Path: PathStr): PathStr;
 procedure GetDate (var Year, Month, Day, WeekDay: word);
 procedure GetTime (var Hour, Minute, Sec, Sec100: word);
 
-var
-  MemAvail: Cardinal;
-
 implementation
 
 uses sysutils;
@@ -31,8 +28,8 @@ begin
   d := ExtractFilePath(path);
   e := ExtractFileExt(path);
   n := ExtractFileName(Path);
-  if e<>'' then
-    n := copy(n,1,length(n)-length(e));
+  if e <> '' then
+    n := Copy(n,1,length(n)-length(e));
 end;
 
 procedure GetCbreak (OldBreak: Boolean);
@@ -50,33 +47,27 @@ end;
 
 function fexpand (Path: PathStr): PathStr;
 var
-  s: string;
+  S: string;
 begin
   if ExtractFilePath(Path)='' then
   begin
-    GetDir(0,s);
-    Path := s+'\'+Path;
+    GetDir(0, S);
+    Path := S + '\'+Path;
   end;
-  result := Path;
+  Result := Path;
 end;
 
 
 procedure GetDate (var Year, Month, Day, WeekDay: word);
 begin
-  DecodeDate(now,Year,Month,Day);
-  Weekday := DayOfWeek(now)-1;
+  DecodeDate(now, Year, Month, Day);
+  Weekday := DayOfWeek(now) - 1;
 end;
 
 
 procedure GetTime (var Hour, Minute, Sec, Sec100: word);
 begin
-  DecodeTime(now, Hour,Minute,Sec,Sec100);
+  DecodeTime(now, Hour, Minute, Sec, Sec100);
 end;
 
-var
-  HeapStatus: THeapStatus;
-
-begin
-  HeapStatus := GetHeapStatus;
-  MemAvail := HeapStatus.TotalFree;
 end.

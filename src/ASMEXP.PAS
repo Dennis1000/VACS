@@ -145,7 +145,7 @@ var   ExprOper:   integer;
 
             AbsOp:   { ABS operator }
               begin
-                CurOp := Curval;
+                // CurOp := Curval; // Value assigned never used
                              { save wanted operator }
                 GetToken;
                 Term (Result);

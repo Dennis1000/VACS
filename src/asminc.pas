@@ -117,7 +117,7 @@ const
   Zbrr_     = $9b;
   Zbsr_     = $bb;
 
-var CurReg, Indirect: integer;
+var Indirect: integer;
 
   procedure IncorrectReg;
   begin
@@ -233,7 +233,8 @@ var CurReg, Indirect: integer;
 
   procedure Mode4;           { Opcode v         (v = 0..255)}
   begin
-    MustbeExpr(0,255);
+    //1.24i Expanded the lower bounds to -128 - was MustBeExpr(0,255) before.
+    MustBeExpr(-128,255);
     WriteByte(Commd);
     WriteByte(CurExpVal);
     GetToken;
@@ -245,7 +246,8 @@ var CurReg, Indirect: integer;
       if IsReg then
         begin
           DisposeToken(Commd + CurVal);
-          MustBeExpr(0,255);
+          //1.24i Expanded the lower bounds to -128 - was MustBeExpr(0,255) before.
+          MustBeExpr(-128,255);
           DisposeToken(CurExpVal);
           end
        else

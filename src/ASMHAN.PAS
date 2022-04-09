@@ -37,7 +37,6 @@ var InclSectPos: longint;
 
   procedure HandleBlock (IfLevel: integer);
   var EndOfBlock: boolean;
-      i:          integer;
 
 { the following procedure is used to handle the lines that do not
   contain the IF, ELSE, ENDIF or INCL opcodes as first token.
@@ -48,8 +47,6 @@ var InclSectPos: longint;
         BackUpPtr,
         OpcodePtr,
         i, j, k, l1 : integer;
-        w, l        : longint;
-        TryExpr,
         Loop,
         OrgOk,
         HasColon,
@@ -57,12 +54,17 @@ var InclSectPos: longint;
         DollarTyp   : byte;
         LineLabel   : IdentPtr;
 
-        FillNr: Integer; //v1.24g
-
     begin { ParseLine }
       DollarDef := FALSE;
       CurLabelDef := FALSE;
       StartError := ErrorPntr;
+
+      //1.24i Initialize unitialized variables.
+      Loop := False;
+      DollarTyp := 0;
+      HasColon := False;
+      OldHOutPtr := 0;
+
  {
       for i := 1 to length (CurLine) do
         if CurLine[i] = '^' then
@@ -196,7 +198,7 @@ var InclSectPos: longint;
                         inc (i);
                         GetInp;
                       end;
-                    CurQuoted[0] := chr (i - 1);
+                    CurQuoted[0] := AnsiChar (i - 1);
                     if (i > 1) and (CurQuoted[1] in ['A'..'Z']) then
                       if EndOfLine or (LockBuffer = ' ')
                          or (LockBuffer = ';') then
@@ -261,6 +263,11 @@ var InclSectPos: longint;
                 StLinePntr := 1;
                 HexStart (hi (HOutPntr));
                 HexStart (lo (HOutPntr));
+
+                //1.24i Padd binary if necessary.
+                if BinaryFormat then
+                  PadOrg(HOutPntr, OldHoutPtr);
+
                 StLinePntr := L1;
                 if LineLabel<> NIL then LineLabel^.Val := HOutPntr;
                 if DollarDef then DollarPntr := HOutPntr;
@@ -485,7 +492,7 @@ var InclSectPos: longint;
                         CurLinePntr := BackUpPtr - 2;
                         GetInp;
                         GetToken;
-                        TryExpr := TRUE;
+                       // TryExpr := TRUE;
                       end;
                   end
 
@@ -505,7 +512,7 @@ var InclSectPos: longint;
               repeat         { work through list }
                 if IsString then
                   begin
-                    BackUpPtr := CurLinePntr;
+                    // BackUpPtr := CurLinePntr;
                     if (length (CurQuoted) = 8){ or EndOfline or
                        ((CurTyp = Operand) and (CurVal = Comma)) }then
                         { quoted string cannot be part of expression: }
@@ -619,7 +626,7 @@ var InclSectPos: longint;
 
             DefString:
               repeat
-                Loop := false;
+                // Loop := false;
                 if (CurTyp = Ident) and (CurIdent^.Def = NotYet) then
                   begin
                     CurIdent^.Typ := StrIdent;
@@ -641,7 +648,7 @@ var InclSectPos: longint;
                       end;
                     CurIdent^.Val := StringPntr^.Val;
                     CurIdent^.Def := FPass;
-                    StringPntr^.Name[0] := chr (0);
+                    StringPntr^.Name[0] := AnsiChar (0);
                     StringPntr^.Next := NIL;
                     GetToken;   { get comma }
                     Loop := (CurTyp = Operand) and (CurVal = Comma);
@@ -715,7 +722,7 @@ var InclSectPos: longint;
                           begin
                             ErrorPntr := ErrorPntr-length (CurQuoted)+39;
                             StoError (1,'Line Truncated');
-                            Curquoted[0] := chr (40);
+                            Curquoted[0] := AnsiChar (40);
                           end;
                         for i := 1 to length (CurQuoted) do
                           TitleLine[i]:= CurQuoted[i];
@@ -732,6 +739,9 @@ var InclSectPos: longint;
 
             SetWidth:
               begin
+                //OpcodePos := ErrorPntr;
+                //MustBeExpr (0, $ffff);
+
                 if EnaLineNum then
                   MustBeExpr (73, 255 - length (LMargStr))
                 else
@@ -740,9 +750,9 @@ var InclSectPos: longint;
                 if CurExpDef then
                   PageWidth := CurExpVal;
                 if length (TitleLine) > PageWidth then
-                  TitleLine[0] := chr (PageWidth);
+                  TitleLine[0] := AnsiChar (PageWidth);
                 if length (SbTitleLine) > Pagewidth then
-                  SbTitleLine[0] := chr (PageWidth);
+                  SbTitleLine[0] := AnsiChar (PageWidth);
                 DontPrint := TRUE;
               end;
 
@@ -757,7 +767,7 @@ var InclSectPos: longint;
                     StoError (0,'Value Out Of Range');
                   end
                 else
-                  LMargStr[0] := chr (CurExpVal);
+                  LMargStr[0] := AnsiChar (CurExpVal);
                 DontPrint := TRUE;
               end;
 
@@ -825,10 +835,10 @@ var InclSectPos: longint;
                       MustBeExpr (0, 255);
                       if CurExpDef then
                         if OpcodePtr = ToScreen then
-                          write (chr (CurExpVal))
+                          write (AnsiChar (CurExpVal))
                         else
                           if Pass = Second then
-                            write (ListFile, chr (CurExpVal));
+                            write (ListFile, AnsiChar (CurExpVal));
                     end;
                   SeekComma;
                   Loop := (CurTyp = Operand) and (CurVal = Comma);
@@ -946,7 +956,6 @@ var InclSectPos: longint;
 
     procedure SkipBlock (IfLevel: integer);
     var EndOfBlock: Boolean;
-        i         : integer;
     begin
       BlockAll := TRUE;      { prevent definition of identifiers }
       repeat
@@ -990,6 +999,9 @@ var InclSectPos: longint;
     end;
 
   begin { HandleBlock }
+    //1.24i Initialize unitialized variables.
+
+
     EndOfBlock := FALSE;
     repeat
       BlockRefTo := TRUE;    { V1.23h: disable reference marking for labels }
@@ -1064,7 +1076,7 @@ var InclSectPos: longint;
                              { misused to store start of string }
                     GetQuoted (64);
                     InclEOF := length (CurQuoted) > 0;
-                    InclFile := fexpand (CurQuoted);
+                    InclFile := fexpand (String(CurQuoted));
 
                     if CurTyp <> EndLine then
                       begin

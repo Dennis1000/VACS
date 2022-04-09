@@ -4,47 +4,47 @@ unit types;
 
 interface
 
-function iscntr  (ch:char): boolean;
-function islower (ch:char): boolean;
-function isupper (ch:char): boolean;
-function isdigit (ch:char): boolean;
-function ishex   (ch:char): boolean;
-function islabel (ch:char): boolean;
-function isspace (ch:char): boolean;
-function isalpha (ch:char): boolean;
-function tolower (ch:char): char;
+function iscntr  (ch:AnsiChar): boolean;
+function islower (ch:AnsiChar): boolean;
+function isupper (ch:AnsiChar): boolean;
+function isdigit (ch:AnsiChar): boolean;
+function ishex   (ch:AnsiChar): boolean;
+function islabel (ch:AnsiChar): boolean;
+function isspace (ch:AnsiChar): boolean;
+function isalpha (ch:AnsiChar): boolean;
+function tolower (ch:AnsiChar): AnsiChar;
 
 implementation
 
 uses SysUtils;
 
-function iscntr  (ch:char): boolean;
+function iscntr  (ch:AnsiChar): boolean;
 begin
   result := (ord(ch)<16);
 end;
 
 
-function islower (ch:char): boolean;
+function islower (ch:AnsiChar): boolean;
 //lower { 'a'..'z' }
 begin
  result := ((ch>='a') and (ch<='z'));
 end;
 
 
-function isupper (ch:char): boolean;
+function isupper (ch:AnsiChar): boolean;
 //upper { 'A'..'Z' }
 begin
  result := ((ch>='A') and (ch<='Z'));
 end;
 
 
-function isdigit (ch:char): boolean;
+function isdigit (ch:AnsiChar): boolean;
 //digit   '0'..'9' }
 begin
  result := ((ch>='0') and (ch<='9'));
 end;
 
-function ishex   (ch:char): boolean;
+function ishex   (ch:AnsiChar): boolean;
 //xdigit  { '0'..'9', 'A'..'F', 'a'..'f' }
 begin
  result := ((ch>='A') and (ch<='F')) or
@@ -52,7 +52,7 @@ begin
            ((ch>='0') and (ch<='9'));
 end;
 
-function islabel (ch:char): boolean;
+function islabel (ch:AnsiChar): boolean;
 //labl  { 'A'..'Z', '0'..'9', '@', '$', '_' }
 begin
  result := ((ch>='A') and (ch<='Z')) or
@@ -62,21 +62,21 @@ begin
            (ch='_');
 end;
 
-function isspace (ch:char): boolean;
+function isspace (ch:AnsiChar): boolean;
 begin
  result := (ch=' ');
 end;
 
-function isalpha (ch:char): boolean;
+function isalpha (ch:AnsiChar): boolean;
 // alpha { 'a'..'z', 'A'..'Z' }
 begin
  result := ((ch>='a') and (ch<='z')) or
            ((ch>='A') and (ch<='Z'));
 end;
 
-function tolower (ch:char): char;
+function tolower (ch:AnsiChar): AnsiChar;
 begin
-  result := LowerCase(ch)[1];
+  result := AnsiChar(LowerCase(String(ch))[1]);
 end;
 
 end.
