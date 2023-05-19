@@ -1,14 +1,12 @@
-; v1.24i Test file
-;
-;      org         0000H        ; Start
-;width 1H        ; Start
-;END 100
-;WIDTH 150
-;PAGE 100
+LEFTMARG 10
+TITLE "a"
+WIDTH  80
+
+PAGE 100
 ;OFFS 100
 ;TABS 5
 
-      name v1_24i
+NAME v1_24j
 
 ;2650 Equates
 z     equ  0

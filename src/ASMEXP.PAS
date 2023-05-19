@@ -220,7 +220,7 @@ var   ExprOper:   integer;
           Result.Def := CurDef;
           Result.Val := CurVal;
           Result.Forw := CurForw;
-          Result.IsUser := (CurIdent^.Typ = UserIdent);
+          Result.IsUser := (Assigned(CurIdent)) and (CurIdent^.Typ = UserIdent); //1.24j CurIdent may be NIL at this point.
           if CurTyp = UserIdent then
             CurExpUserPos := ErrorPntr;
           if CurTyp = Ident then

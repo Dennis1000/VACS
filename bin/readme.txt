@@ -89,6 +89,9 @@ v1.24i/w32 (2022/04):
  - Compilable with Delphi 11.1
  - Dropped "Available memory" output.
 
+v1.24j/w32 (2023/05):
+ - Fixed WIDTH expression
+
 Support
 -------
 You may find the latest version here

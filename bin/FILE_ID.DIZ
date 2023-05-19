@@ -1,8 +1,8 @@
-VACS 1.24i/w32 - 2650 family assembler
+VACS 1.24j/w32 - 2650 family assembler
 This is the Win32 port of the VACS 1.24 
 assembler by W.H. Taphoorn and A.C. Verschueren 
 with additional binary output support for 
 the Signetics 2650 processor, long file name 
 support, bugfixes and other minor updates.
 Ported to Windows and updated by D.D. Spreen.
-Compiled in 2022 with Delphi 11.1
+Compiled in 2023 with Delphi 11.3

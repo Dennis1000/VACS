@@ -271,12 +271,12 @@ var
   lTabs: Integer;
   lDollarPntr: Integer;
 begin { MAIN ROUTINE }
-  Version := ' V1.24i/w32';
+  Version := ' V1.24j/w32';
   writeln;
   writeln ('VACS   Verschueren Assembler Construction Set ',ProcFamily + Version);
   writeln ('       The public domain modular assembler package, written by');
   writeln ('       A.C. Verschueren 1987 and W.H. Taphoorn, 1989..1993');
-  writeln ('       Updated & ported to Win32 by D.D. Spreen, 2003..2022');
+  writeln ('       Updated & ported to Win32 by D.D. Spreen, 2003..2023');
   writeln;
 
 //  assign (output,'');         { V1.20 suppress direct video I/O }
@@ -460,7 +460,7 @@ begin { MAIN ROUTINE }
 
 { --------------  First Pass Done -------------------- }
 
-  PageWidth     := 80;       { initialise for the second pass }
+  PageWidth     := 160;       { initialise for the second pass }
   PageLength    := 66;
   SbTitleLine   := '';
   TitleLine     := '                                        ';
