@@ -460,7 +460,7 @@ begin { MAIN ROUTINE }
 
 { --------------  First Pass Done -------------------- }
 
-  PageWidth     := 160;       { initialise for the second pass }
+  PageWidth     := 80;       { initialise for the second pass }
   PageLength    := 66;
   SbTitleLine   := '';
   TitleLine     := '                                        ';
